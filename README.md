@@ -12,7 +12,7 @@ K and looks cool.
 [dwm]: https://dwm.suckless.org/
 [wikipedia]: https://en.wikipedia.org/wiki/Kr%C3%B6hnkite
 
-![screenshot](img/screenshot.png)
+![Kröhnkite binary tree layout](img/demo.gif)
 
 ## Features
 
