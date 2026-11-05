@@ -12,6 +12,7 @@
 /*.qml
 *.kwinscript
 *.bak
+krohnkite-diagnostics-*.txt
 
 config.py*
 pnpm-lock.yaml

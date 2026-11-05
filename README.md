@@ -106,6 +106,35 @@ kwriteconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled false && qdbu
    xwaylandvideobridge,plasmashell,ksplashqml
    ```
 
+### Collect diagnostics for a bug report
+
+Krohnkite ships a read-only diagnostics collector (Python 3 is required):
+
+```sh
+python3 ~/.local/share/kwin/scripts/krohnkite/contents/code/collect-diagnostics.py
+```
+
+It writes `krohnkite-diagnostics-*.txt` with the Plasma, KWin and Qt versions,
+the display layout, enabled KWin scripts, every Krohnkite setting, and shortcut
+conflicts. Values of user-defined title and desktop rules are hidden by default;
+the collector can include them only when a maintainer asks for them. The report
+is generated locally and is never uploaded. It does not contain your host name,
+user name, home directory paths, IP or MAC addresses, UUIDs, monitor serial
+numbers or EDID data, open windows, window titles, KWin window rules, or journal
+contents.
+
+If Krohnkite is installed system-wide or the path above does not exist, download
+the latest collector:
+
+```sh
+curl -fsSLO https://codeberg.org/anametologin/Krohnkite/raw/branch/master/tools/collect-diagnostics.py
+python3 collect-diagnostics.py
+```
+
+Review the generated file before attaching it to an issue. If a maintainer asks
+for the hidden user-defined values, rerun with `--include-user-rules` and review
+the result again before sharing it.
+
 ## Installation
 
 You can install Kröhnkite in multiple ways.

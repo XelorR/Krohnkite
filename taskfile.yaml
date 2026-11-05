@@ -86,6 +86,7 @@ tasks:
       - cp -r res/layouts {{.KWINPKG_DIR}}/contents/ui/
       - cp -r res/appicon {{.KWINPKG_DIR}}/contents/ui/
       - cp tools/install-icons.py {{.KWINPKG_DIR}}/contents/code/install-icons.py
+      - cp tools/collect-diagnostics.py {{.KWINPKG_DIR}}/contents/code/collect-diagnostics.py
       - cp res/dragpreview.qml  {{.KWINPKG_DIR}}/contents/ui/dragpreview.qml
       - cp res/shortcuts.qml  {{.KWINPKG_DIR}}/contents/ui/shortcuts.qml
       - cp res/dbus.qml  {{.KWINPKG_DIR}}/contents/ui/dbus.qml
@@ -102,6 +103,7 @@ tasks:
       - res/layouts/*.svg
       - res/appicon/*.svg
       - tools/install-icons.py
+      - tools/collect-diagnostics.py
       - res/dragpreview.qml
       - res/shortcuts.qml
       - res/dbus.qml
@@ -117,6 +119,7 @@ tasks:
       - "{{.KWINPKG_DIR}}/contents/ui/layouts/*.svg"
       - "{{.KWINPKG_DIR}}/contents/ui/appicon/*.svg"
       - "{{.KWINPKG_DIR}}/contents/code/install-icons.py"
+      - "{{.KWINPKG_DIR}}/contents/code/collect-diagnostics.py"
       - "{{.KWINPKG_DIR}}/contents/ui/dragpreview.qml"
       - "{{.KWINPKG_DIR}}/contents/ui/shortcuts.qml"
       - "{{.KWINPKG_DIR}}/contents/ui/dbus.qml"

@@ -61,6 +61,7 @@ $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/layoutchooser.qml
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/iconinstaller.qml
 $(KWINPKG_DIR): $(patsubst res/%,$(KWINPKG_DIR)/contents/ui/%,$(wildcard res/layouts/*.svg) $(wildcard res/appicon/*.svg))
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/code/install-icons.py
+$(KWINPKG_DIR): $(KWINPKG_DIR)/contents/code/collect-diagnostics.py
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/dragpreview.qml
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/shortcuts.qml
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/code/main.js
@@ -92,6 +93,7 @@ $(KWINPKG_DIR)/contents/ui/appicon/%.svg: res/appicon/%.svg
 	@mkdir -p $(dir $@)
 	@cp $< $@
 $(KWINPKG_DIR)/contents/code/install-icons.py: tools/install-icons.py
+$(KWINPKG_DIR)/contents/code/collect-diagnostics.py: tools/collect-diagnostics.py
 $(KWINPKG_DIR)/contents/ui/dragpreview.qml: res/dragpreview.qml
 $(KWINPKG_DIR)/contents/ui/shortcuts.qml: res/shortcuts.qml
 $(KWINPKG_DIR)/contents/code/script.js: $(NODE_SCRIPT)
