@@ -1242,16 +1242,23 @@ class KWinDriver implements IDriverContext {
     surface: ISurface,
     direction: Direction,
   ): Rect {
+    /* The synthetic source rect must sit just outside the target screen, not
+     * inside it. Directional filtering is strict (`r.x > rect.x` for right,
+     * `r.y > rect.y` for down), so an inward strip starting exactly on the
+     * screen edge rejects a window tiled flush against that edge: with zero
+     * gaps the leftmost tile on the right-hand screen has x === screen.x.
+     * An outward strip keeps the strict comparisons meaningful and includes
+     * every window on the target surface. */
     const g = toRect(surface.output.geometry);
     switch (direction) {
       case "left":
-        return new Rect(g.maxX - 5, g.y, 5, g.height);
+        return new Rect(g.maxX, g.y, 5, g.height);
       case "right":
-        return new Rect(g.x, g.y, 5, g.height);
+        return new Rect(g.x - 5, g.y, 5, g.height);
       case "up":
-        return new Rect(g.x, g.maxY - 5, g.width, 5);
+        return new Rect(g.x, g.maxY, g.width, 5);
       case "down":
-        return new Rect(g.x, g.y, g.width, 5);
+        return new Rect(g.x, g.y - 5, g.width, 5);
     }
   }
   private _setFocusOnSurface(
