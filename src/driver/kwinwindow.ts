@@ -160,6 +160,8 @@ class DriverWindow implements IDriverWindow {
   private keepBelowOriginal: boolean;
   private minimizedManaged: boolean;
   private minimizedOriginal: boolean;
+  /* The geometry last requested from KWin; null while KWin owns the size. */
+  private committedGeometry: Rect | null;
 
   constructor(
     window: KwinWindow,
@@ -182,6 +184,7 @@ class DriverWindow implements IDriverWindow {
     this.keepBelowOriginal = window.keepBelow;
     this.minimizedManaged = false;
     this.minimizedOriginal = window.minimized;
+    this.committedGeometry = null;
     this.floatConfig = this._getFloatConfig(window);
     this.isIgnoredByConfig =
       DriverWindow.isContain(KWINCONFIG.ignoreClass, window.resourceClass) ||
@@ -298,14 +301,22 @@ class DriverWindow implements IDriverWindow {
         geometry = this.adjustGeometry(geometry);
       }
       if (this.window.deleted) return;
-      const nextFrame = toQRect(geometry);
-      const currentFrame = this.window.frameGeometry;
+      /* Compare with the last request, not with the frame the window settled
+       * on: a client can answer with another size for as long as it lives, such
+       * as 1075.625 for a request of 1075 at 160% scale, and an arrange that
+       * changes nothing is no resize. Without a request to compare with, a
+       * difference below one pixel is only that rounding. */
+      const previous = this.committedGeometry ?? this.window.frameGeometry;
       if (
-        nextFrame.width !== currentFrame.width ||
-        nextFrame.height !== currentFrame.height
+        Math.abs(geometry.width - previous.width) >= 1 ||
+        Math.abs(geometry.height - previous.height) >= 1
       )
         ctx.onWindowSizeCommitted(this.window);
-      this.window.frameGeometry = nextFrame;
+      this.committedGeometry = geometry;
+      this.window.frameGeometry = toQRect(geometry);
+    } else {
+      /* Natively maximized or fullscreen: the next request is a real resize. */
+      this.committedGeometry = null;
     }
   }
   public toString(): string {
