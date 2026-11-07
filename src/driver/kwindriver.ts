@@ -109,6 +109,10 @@ class KWinDriver implements IDriverContext {
       this.workspace.activeWindow = (window.window as DriverWindow).window;
     }
   }
+  public raiseWindow(window: WindowClass): void {
+    if (!window.isAlive()) return;
+    this.workspace.raiseWindow((window.window as DriverWindow).window);
+  }
   public get currentSurfaces(): ISurface[] {
     const currentSurfaces: ISurface[] = [];
     this.workspace.screens.forEach((output) => {
@@ -1986,11 +1990,7 @@ class KWinDriver implements IDriverContext {
           `window: caption:${client.caption} internalID:${client.internalId} stackingOrder:${client.stackingOrder}`,
           { winClass: [`${client.resourceClass}`] },
         );
-        this.control.onStackingOrderChanged(
-          this,
-          window,
-          "stackingOrderChanged",
-        );
+        this.control.onStackingOrderChanged(this, window);
       }
     });
 

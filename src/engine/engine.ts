@@ -1003,6 +1003,49 @@ class TilingEngine {
   }
 
   /**
+   * Restack the spread tiles around the focused window without changing
+   * their geometry. Called when an explicit focus change raises a tile, so
+   * that the layout order stays stable and only the z-order changes.
+   */
+  public restackSpread(
+    ctx: IDriverContext,
+    srf: ISurface,
+    focused: WindowClass | null,
+  ): void {
+    const layout = this.layouts.getCurrentLayout(srf);
+    if (!(layout instanceof SpreadLayout)) return;
+    const tiles = this.windows.getVisibleTiles(srf);
+    layout.restack(new EngineContext(ctx, this), tiles, focused);
+  }
+
+  /**
+   * Restack the spread around a window that received focus, but only when the
+   * focus came with a raise: a focus-follows-mouse change that leaves the
+   * window behind other tiles must not move the stack.
+   */
+  public restackSpreadOnFocus(ctx: IDriverContext, window: WindowClass): void {
+    const srf = window.surface;
+    const layout = this.layouts.getCurrentLayout(srf);
+    if (!(layout instanceof SpreadLayout)) return;
+    const tiles = this.windows.getVisibleTiles(srf);
+    if (tiles.length === 0) return;
+
+    let top = tiles[0];
+    for (const tile of tiles) {
+      if (tile.window.stackingOrder > top.window.stackingOrder) top = tile;
+    }
+    if (top !== window) return;
+
+    layout.restack(new EngineContext(ctx, this), tiles, window);
+  }
+
+  private restackAfterFocus(ctx: IDriverContext): void {
+    const window = ctx.currentWindow;
+    if (window !== null && window.isTiled)
+      this.restackSpread(ctx, window.surface, window);
+  }
+
+  /**
    * Re-apply window geometry, computed by layout algorithm.
    *
    * Sometimes applications move or resize windows without user intervention,
@@ -1070,7 +1113,10 @@ class TilingEngine {
     /* if no current window, select the first tile. */
     if (window === null) {
       const tiles = this.windows.getVisibleTiles(ctx.currentSurface);
-      if (tiles.length > 1) ctx.currentWindow = tiles[0];
+      if (tiles.length > 1) {
+        ctx.currentWindow = tiles[0];
+        this.restackAfterFocus(ctx);
+      }
       ctx.requestPointerOnFocus("window", true);
       return;
     }
@@ -1082,6 +1128,7 @@ class TilingEngine {
     if (!window || idx < 0) {
       /* unmanaged window -> focus master */
       ctx.currentWindow = visibles[0];
+      this.restackAfterFocus(ctx);
       ctx.requestPointerOnFocus("window", true);
       return;
     }
@@ -1090,6 +1137,7 @@ class TilingEngine {
     const newIndex = (idx + (step % num) + num) % num;
 
     ctx.currentWindow = visibles[newIndex];
+    this.restackAfterFocus(ctx);
     ctx.requestPointerOnFocus("window", true);
   }
 
@@ -1102,6 +1150,7 @@ class TilingEngine {
       return ctx.focusSpecial(dir);
     }
     if (ctx.focusNeighborWindow(dir, winTypes)) {
+      this.restackAfterFocus(ctx);
       ctx.requestPointerOnFocus("window", true);
       return false;
     }
@@ -1111,6 +1160,7 @@ class TilingEngine {
     ) {
       const result = ctx.focusOutput(null, dir, winTypes);
       if (result) {
+        this.restackAfterFocus(ctx);
         ctx.requestPointerOnFocus("screen", true);
         return false;
       }
@@ -1120,7 +1170,9 @@ class TilingEngine {
       (!ctx.isRegister && CONFIG.focusMoveVDesktopsNormal) ||
       (ctx.isRegister && CONFIG.focusMoveVDesktopsMeta)
     ) {
-      return ctx.focusVDesktop(null, dir, winTypes);
+      const result = ctx.focusVDesktop(null, dir, winTypes);
+      this.restackAfterFocus(ctx);
+      return result;
     }
     return false;
   }

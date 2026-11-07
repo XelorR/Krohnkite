@@ -260,6 +260,9 @@ interface IDriverContext {
   currentWindow: WindowClass | null;
   isRegister: boolean;
 
+  /* Raise a window in the stacking order without activating it. */
+  raiseWindow(window: WindowClass): void;
+
   getNeighborOutput(direction: Direction, source: Output): Output | null;
   getNeighborVDesktop(
     direction: Direction,

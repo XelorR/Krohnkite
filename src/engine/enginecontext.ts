@@ -25,6 +25,10 @@ class EngineContext {
     this.drvctx.currentWindow = window;
   }
 
+  public raiseWindow(window: WindowClass): void {
+    this.drvctx.raiseWindow(window);
+  }
+
   public get cursorPos(): QPoint | null {
     return this.drvctx.cursorPosition;
   }

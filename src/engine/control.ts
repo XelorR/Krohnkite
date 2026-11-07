@@ -79,12 +79,14 @@ class TilingController {
   public onStackingOrderChanged(
     ctx: IDriverContext,
     window: WindowClass,
-    reason: keyof typeof ArrangeReason,
   ): void {
+    /* The spread geometry does not depend on the stacking order, so a raise
+     * must only restack the windows: the focused one comes to the front
+     * without any window moving. */
+    if (!window.isTiled) return;
     const layout = this.engine.layouts.getCurrentLayout(window.surface);
-    if (layout instanceof SpreadLayout) {
-      this.engine.arrange(ctx, reason, getMethodName());
-    }
+    if (layout instanceof SpreadLayout)
+      this.engine.restackSpread(ctx, window.surface, window);
   }
 
   public onWindowAdded(
@@ -450,6 +452,10 @@ class TilingController {
 
   public onWindowFocused(ctx: IDriverContext, window: WindowClass) {
     window.focusTime = getTime();
+    /* A focus that came with a raise brings the window to the front of the
+     * spread; a focus change that left it behind other tiles (focus follows
+     * mouse) does not. The engine checks which case applies. */
+    if (window.isTiled) this.engine.restackSpreadOnFocus(ctx, window);
   }
 
   public onDesktopsChanged(ctx: IDriverContext, window: WindowClass) {
