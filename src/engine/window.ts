@@ -99,9 +99,15 @@ class WindowClass implements IWindowClass {
     else if (
       this.isFloating &&
       (WindowClass.isTileableState(value) || WindowClass.isDockedState(value))
-    )
+    ) {
       /* save the current geometry before leaving floating state */
       this.floatGeometry = this.actualGeometry;
+      /* The layout did not own the size of a floating window, so the last
+       * request no longer describes it. Let the next commit compare with the
+       * frame again, or a window resized by hand and then tiled counts as
+       * unchanged. */
+      this.window.forgetCommittedGeometry();
+    }
 
     if (
       state === WindowState.Tiled ||

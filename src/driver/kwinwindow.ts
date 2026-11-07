@@ -321,6 +321,13 @@ class DriverWindow implements IDriverWindow {
       this.committedGeometry = new Rect(0, 0, 0, 0);
     }
   }
+  /* The window's size is no longer ours to compare against -- it floats, so the
+   * user owns it, or the window left the layout. The next request has to be
+   * compared with the frame, with the rounding tolerance, instead of with a
+   * request that no longer describes the window. */
+  public forgetCommittedGeometry(): void {
+    this.committedGeometry = null;
+  }
   public toString(): string {
     return `${debugWin(this.window)}`;
   }
