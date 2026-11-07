@@ -259,7 +259,6 @@ function committedWindow(
   driverWindow.window = window;
   driverWindow.noBorderManaged = false;
   driverWindow.layerManaged = false;
-  driverWindow._movePointerToCenter = { isMove: false, time: 0 };
   driverWindow.adjustGeometry = (geometry) => geometry;
   const ctx = { onWindowSizeCommitted: (client) => calls.push(client) };
   return { driverWindow, window, Rect, ctx, calls };
@@ -339,6 +338,32 @@ test('leaving a native maximize is a size change even for the same tile', () => 
   driverWindow.commit(ctx);
   assert.equal(calls.length, 0);
 
+  driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
+  assert.equal(calls.length, 1);
+});
+
+test('repeated commits while KWin owns the size count as one resize', () => {
+  const { driverWindow, window, Rect, ctx, calls } = committedWindow({
+    x: 10,
+    y: 40,
+    width: 1780,
+    height: 1075,
+  });
+
+  driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
+  assert.equal(calls.length, 0);
+
+  /* Every arrange while natively maximized commits without a geometry. */
+  window.frameGeometry = { x: 0, y: 30, width: 1800, height: 1095 };
+  driverWindow.commit(ctx);
+  driverWindow.commit(ctx);
+  driverWindow.commit(ctx);
+  assert.equal(calls.length, 0);
+
+  driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
+  assert.equal(calls.length, 1);
+
+  /* The arrange after that is an ordinary one again. */
   driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
   assert.equal(calls.length, 1);
 });
