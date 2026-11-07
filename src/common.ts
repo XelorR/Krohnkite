@@ -182,7 +182,7 @@ interface IDriverWindow {
     noBorder?: boolean,
     windowLayer?: WindowLayer,
   ): void;
-  forgetCommittedGeometry(): void;
+  forgetRequestedGeometry(): void;
   updateSrfTime(srfId: string): void;
   visible(srf: ISurface): boolean;
   dispose(): void;

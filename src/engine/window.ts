@@ -106,7 +106,7 @@ class WindowClass implements IWindowClass {
        * request no longer describes it. Let the next commit compare with the
        * frame again, or a window resized by hand and then tiled counts as
        * unchanged. */
-      this.window.forgetCommittedGeometry();
+      this.window.forgetRequestedGeometry();
     }
 
     if (

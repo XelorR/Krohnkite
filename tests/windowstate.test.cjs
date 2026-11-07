@@ -61,7 +61,7 @@ function fakeWindow(Rect) {
     fullScreen: false,
     maximized: false,
     forgets: 0,
-    forgetCommittedGeometry() {
+    forgetRequestedGeometry() {
       this.forgets++;
     },
   };

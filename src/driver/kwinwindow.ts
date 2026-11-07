@@ -162,7 +162,7 @@ class DriverWindow implements IDriverWindow {
   private minimizedOriginal: boolean;
   /* The geometry last requested from KWin. Null before the first request, and
    * empty while KWin owns the size, so the next request counts as a resize. */
-  private committedGeometry: Rect | null;
+  private lastRequestedGeometry: Rect | null;
 
   constructor(
     window: KwinWindow,
@@ -185,7 +185,7 @@ class DriverWindow implements IDriverWindow {
     this.keepBelowOriginal = window.keepBelow;
     this.minimizedManaged = false;
     this.minimizedOriginal = window.minimized;
-    this.committedGeometry = null;
+    this.lastRequestedGeometry = null;
     this.floatConfig = this._getFloatConfig(window);
     this.isIgnoredByConfig =
       DriverWindow.isContain(KWINCONFIG.ignoreClass, window.resourceClass) ||
@@ -307,26 +307,26 @@ class DriverWindow implements IDriverWindow {
        * as 1075.625 for a request of 1075 at 160% scale, and an arrange that
        * changes nothing is no resize. Without a request to compare with, a
        * difference below one pixel is only that rounding. */
-      const previous = this.committedGeometry ?? this.window.frameGeometry;
+      const baseline = this.lastRequestedGeometry ?? this.window.frameGeometry;
       if (
-        Math.abs(geometry.width - previous.width) >= 1 ||
-        Math.abs(geometry.height - previous.height) >= 1
+        Math.abs(geometry.width - baseline.width) >= 1 ||
+        Math.abs(geometry.height - baseline.height) >= 1
       )
         ctx.onWindowSizeCommitted(this.window);
-      this.committedGeometry = geometry;
+      this.lastRequestedGeometry = geometry;
       this.window.frameGeometry = toQRect(geometry);
     } else {
       /* Natively maximized or fullscreen: no size of ours is in effect, so the
        * next request is a resize even if KWin already restored the frame. */
-      this.committedGeometry = new Rect(0, 0, 0, 0);
+      this.lastRequestedGeometry = new Rect(0, 0, 0, 0);
     }
   }
   /* The window's size is no longer ours to compare against -- it floats, so the
    * user owns it, or the window left the layout. The next request has to be
    * compared with the frame, with the rounding tolerance, instead of with a
    * request that no longer describes the window. */
-  public forgetCommittedGeometry(): void {
-    this.committedGeometry = null;
+  public forgetRequestedGeometry(): void {
+    this.lastRequestedGeometry = null;
   }
   public toString(): string {
     return `${debugWin(this.window)}`;
