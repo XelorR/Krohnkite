@@ -283,6 +283,35 @@ test('only size changes are reported when a window is committed', () => {
   assert.equal(calls[0], window);
 });
 
+test('forgetting the request compares the next commit with the frame', () => {
+  const { driverWindow, window, Rect, ctx, calls } = committedWindow({
+    x: 10,
+    y: 40,
+    width: 1780,
+    height: 1075,
+  });
+
+  driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
+  assert.equal(calls.length, 0);
+
+  /* A floating window resized by hand is no longer described by the last
+   * request; tiling it applies a new size again. */
+  window.frameGeometry = { x: 10, y: 40, width: 1200, height: 800 };
+  driverWindow.forgetCommittedGeometry();
+  driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
+  assert.equal(calls.length, 1);
+});
+
+test('forgetting the request keeps the rounding tolerance', () => {
+  const { driverWindow, Rect, ctx, calls } = roundingClient(1075.625);
+
+  driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
+  driverWindow.forgetCommittedGeometry();
+  driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
+
+  assert.equal(calls.length, 0);
+});
+
 test('committing the same size again is not a size change on a rounding client', () => {
   const { driverWindow, Rect, ctx, calls } = roundingClient(1075.625);
 
