@@ -343,6 +343,32 @@ test('leaving a native maximize is a size change even for the same tile', () => 
   assert.equal(calls.length, 1);
 });
 
+test('leaving fullscreen is a size change when KWin already restored the frame', () => {
+  const { driverWindow, window, Rect, ctx, calls } = committedWindow({
+    x: 10,
+    y: 40,
+    width: 1780,
+    height: 1075,
+  });
+
+  driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
+  assert.equal(calls.length, 0);
+
+  window.frameGeometry = { x: 0, y: 0, width: 1800, height: 1125 };
+  driverWindow.commit(ctx);
+  assert.equal(calls.length, 0);
+
+  /* KWin emits fullScreenChanged after it restores the frame, so the request
+   * that follows already matches the frame. */
+  window.frameGeometry = { x: 10, y: 40, width: 1780, height: 1075 };
+  driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
+  assert.equal(calls.length, 1);
+
+  /* The arrange after that is an ordinary one again. */
+  driverWindow.commit(ctx, new Rect(10, 40, 1780, 1075));
+  assert.equal(calls.length, 1);
+});
+
 test('an arrange that changes nothing leaves the pointer alone on a rounding client', () => {
   const { driver, env } = setup();
   const { driverWindow, Rect } = roundingClient(1075.625);

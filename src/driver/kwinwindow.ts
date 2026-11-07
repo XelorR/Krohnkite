@@ -160,7 +160,8 @@ class DriverWindow implements IDriverWindow {
   private keepBelowOriginal: boolean;
   private minimizedManaged: boolean;
   private minimizedOriginal: boolean;
-  /* The geometry last requested from KWin; null while KWin owns the size. */
+  /* The geometry last requested from KWin. Null before the first request, and
+   * empty while KWin owns the size, so the next request counts as a resize. */
   private committedGeometry: Rect | null;
 
   constructor(
@@ -315,8 +316,9 @@ class DriverWindow implements IDriverWindow {
       this.committedGeometry = geometry;
       this.window.frameGeometry = toQRect(geometry);
     } else {
-      /* Natively maximized or fullscreen: the next request is a real resize. */
-      this.committedGeometry = null;
+      /* Natively maximized or fullscreen: no size of ours is in effect, so the
+       * next request is a resize even if KWin already restored the frame. */
+      this.committedGeometry = new Rect(0, 0, 0, 0);
     }
   }
   public toString(): string {
