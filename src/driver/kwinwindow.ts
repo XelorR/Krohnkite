@@ -160,6 +160,9 @@ class DriverWindow implements IDriverWindow {
   private keepBelowOriginal: boolean;
   private minimizedManaged: boolean;
   private minimizedOriginal: boolean;
+  /* The geometry last requested from KWin. Null before the first request, and
+   * empty while KWin owns the size, so the next request counts as a resize. */
+  private committedGeometry: Rect | null;
 
   constructor(
     window: KwinWindow,
@@ -182,6 +185,7 @@ class DriverWindow implements IDriverWindow {
     this.keepBelowOriginal = window.keepBelow;
     this.minimizedManaged = false;
     this.minimizedOriginal = window.minimized;
+    this.committedGeometry = null;
     this.floatConfig = this._getFloatConfig(window);
     this.isIgnoredByConfig =
       DriverWindow.isContain(KWINCONFIG.ignoreClass, window.resourceClass) ||
@@ -298,14 +302,23 @@ class DriverWindow implements IDriverWindow {
         geometry = this.adjustGeometry(geometry);
       }
       if (this.window.deleted) return;
-      const nextFrame = toQRect(geometry);
-      const currentFrame = this.window.frameGeometry;
+      /* Compare with the last request, not with the frame the window settled
+       * on: a client can answer with another size for as long as it lives, such
+       * as 1075.625 for a request of 1075 at 160% scale, and an arrange that
+       * changes nothing is no resize. Without a request to compare with, a
+       * difference below one pixel is only that rounding. */
+      const previous = this.committedGeometry ?? this.window.frameGeometry;
       if (
-        nextFrame.width !== currentFrame.width ||
-        nextFrame.height !== currentFrame.height
+        Math.abs(geometry.width - previous.width) >= 1 ||
+        Math.abs(geometry.height - previous.height) >= 1
       )
         ctx.onWindowSizeCommitted(this.window);
-      this.window.frameGeometry = nextFrame;
+      this.committedGeometry = geometry;
+      this.window.frameGeometry = toQRect(geometry);
+    } else {
+      /* Natively maximized or fullscreen: no size of ours is in effect, so the
+       * next request is a resize even if KWin already restored the frame. */
+      this.committedGeometry = new Rect(0, 0, 0, 0);
     }
   }
   public toString(): string {
