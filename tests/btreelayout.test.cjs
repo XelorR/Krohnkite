@@ -300,7 +300,7 @@ test('Dwindle inserts into the focused leaf and continues from the new focus', (
   assert.equal(shape(aLeaf.parent.first), 'e');
   assert.equal(aLeaf.parent.dir, aHorizontal ? 'h' : 'v');
   assert.equal(aLeaf.parent.ratio, 0.5);
-  assert.equal(aLeaf.parent.locked, false);
+  assert.equal(aLeaf.parent.locked, true);
   assert.equal(layout.tree.root, fourWindowRoot);
   assert.equal(layout.tree.root.ratio, fourWindowRootRatio);
   for (const id of ['b', 'c', 'd']) {
@@ -339,7 +339,7 @@ test('Dwindle inserts into the focused leaf and continues from the new focus', (
   assert.equal(cLeaf.parent.second, fLeaf);
   assert.equal(cLeaf.parent.dir, cHorizontal ? 'h' : 'v');
   assert.equal(cLeaf.parent.ratio, 0.5);
-  assert.equal(cLeaf.parent.locked, false);
+  assert.equal(cLeaf.parent.locked, true);
   assert.equal(shape(layout.tree.root)[0], fourWindowShape[0]);
   assert.equal(layout.tree.root.ratio, fourWindowRootRatio);
   for (const id of ['b', 'd', 'e']) {
@@ -368,7 +368,7 @@ test('Dwindle inserts into the focused leaf and continues from the new focus', (
   assert.equal(gLeaf.parent.second, gLeaf);
   assert.equal(gLeaf.parent.dir, fHorizontal ? 'h' : 'v');
   assert.equal(gLeaf.parent.ratio, 0.5);
-  assert.equal(gLeaf.parent.locked, false);
+  assert.equal(gLeaf.parent.locked, true);
 });
 
 test('new window splits the focused leaf regardless of tile list order', () => {

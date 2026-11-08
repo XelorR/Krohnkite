@@ -29,6 +29,11 @@ class BinaryTreeLayout implements ILayout {
     return "BTree";
   }
 
+  /** Whether freshly inserted splits should retain their orientation while
+   * their area changes. A true value mirrors Hyprland's
+   * `dwindle:preserve_split=true`. */
+  protected newWindowLocked: boolean = false;
+
   private tree: DwindleTree;
   /** Geometry of the last applied pass, used by directional shortcuts. */
   private rendered: Map<string, Rect>;
@@ -225,6 +230,7 @@ class BinaryTreeLayout implements ILayout {
             firstLeaf,
             this.newWindowGoesFirst(ctx, area, "h"),
             "h",
+            this.newWindowLocked,
           );
         }
         lastInserted = tileable.id;
@@ -242,6 +248,7 @@ class BinaryTreeLayout implements ILayout {
             fallbackId,
             this.newWindowGoesFirst(ctx, area, "h"),
             "h",
+            this.newWindowLocked,
           );
         lastInserted = tileable.id;
         continue;
@@ -254,6 +261,7 @@ class BinaryTreeLayout implements ILayout {
         anchorId,
         this.newWindowGoesFirst(ctx, anchorRect, dir),
         dir,
+        this.newWindowLocked,
       );
       lastInserted = tileable.id;
     }

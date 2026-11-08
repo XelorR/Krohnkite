@@ -22,6 +22,9 @@ class DwindleLayout extends BinaryTreeLayout {
     return "Dwindle";
   }
 
+  /** Preserve split direction across resizes (preserve_split=true). */
+  protected newWindowLocked: boolean = true;
+
   /**
    * Hyprland's default force_split behavior puts the new leaf on the side of
    * the selected window containing the cursor. The old leaf occupies the
