@@ -20,9 +20,9 @@
  * The tree itself lives in `DwindleTree`.
  */
 class BinaryTreeLayout implements ILayout {
-  public static readonly id = "BinaryTreeLayout";
+  public static readonly id: string = "BinaryTreeLayout";
 
-  public readonly classID = BinaryTreeLayout.id;
+  public readonly classID: string = BinaryTreeLayout.id;
   public readonly capacity?: number | null;
 
   public get description(): string {
@@ -223,7 +223,7 @@ class BinaryTreeLayout implements ILayout {
           this.tree.insert(
             tileable.id,
             firstLeaf,
-            this.newWindowGoesFirst(),
+            this.newWindowGoesFirst(ctx, area, "h"),
             "h",
           );
         }
@@ -240,7 +240,7 @@ class BinaryTreeLayout implements ILayout {
           this.tree.insert(
             tileable.id,
             fallbackId,
-            this.newWindowGoesFirst(),
+            this.newWindowGoesFirst(ctx, area, "h"),
             "h",
           );
         lastInserted = tileable.id;
@@ -248,20 +248,27 @@ class BinaryTreeLayout implements ILayout {
       }
 
       /* Split along the longer side of the window being split. */
-      const dir: DwindleDir =
-        anchorRect.width >= anchorRect.height ? "h" : "v";
+      const dir = this.newWindowDirection(anchorRect);
       this.tree.insert(
         tileable.id,
         anchorId,
-        this.newWindowGoesFirst(),
+        this.newWindowGoesFirst(ctx, anchorRect, dir),
         dir,
       );
       lastInserted = tileable.id;
     }
   }
 
-  private newWindowGoesFirst(): boolean {
+  protected newWindowGoesFirst(
+    _ctx: EngineContext,
+    _anchorRect: Rect,
+    _dir: DwindleDir,
+  ): boolean {
     return CONFIG.newWindowPosition === "first";
+  }
+
+  protected newWindowDirection(anchorRect: Rect): DwindleDir {
+    return anchorRect.width >= anchorRect.height ? "h" : "v";
   }
 
   /**

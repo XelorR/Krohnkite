@@ -27,6 +27,7 @@ const LAYOUTS = {
   FloatingLayout: { name: 'Floating', icon: 'floating' },
   StairLayout: { name: 'Stair', icon: 'stair' },
   BinaryTreeLayout: { name: 'Binary Tree', icon: 'binarytree' },
+  DwindleLayout: { name: 'Dwindle', icon: 'binarytree' },
   CascadeLayout: { name: 'Cascade', icon: 'cascade' },
 };
 

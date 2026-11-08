@@ -312,6 +312,7 @@ class KWinConfig implements IConfig {
       [StairLayout, true],
       [BinaryTreeLayout, true],
       [CascadeLayout, true],
+      [DwindleLayout, true],
     ] as Array<[ILayoutClass, boolean]>;
     const sortedLayouts: ISortedLayouts[] =
       KWinConfig.getSortedLayouts(layoutsList);
@@ -824,7 +825,7 @@ class KWinConfig implements IConfig {
       let validatedOrder = validateNumber(
         KWIN.readConfig(orderConfigKey, idx + 1),
         1,
-        12,
+        13,
       );
       if (validatedOrder instanceof Err) {
         validatedOrder = idx + 1;

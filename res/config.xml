@@ -197,6 +197,19 @@
         <default>0</default>
     </entry>
 
+    <entry name="dwindleLayoutEnabled" type="Bool">
+        <label>Enable Dwindle layout</label>
+        <default>true</default>
+    </entry>
+    <entry name="dwindleLayoutOrder" type="Int">
+        <label> Dwindle layout order</label>
+        <default>13</default>
+    </entry>
+    <entry name="dwindleLayoutCapacity" type="Int">
+	    <label>How many tiles can Dwindle contain before windows start floating or moving to another screen</label>
+        <default>0</default>
+    </entry>
+
       <!-- ***************************** -->
       <!-- **********Surfaces*********** -->
       <!-- ***************************** -->

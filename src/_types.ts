@@ -84,6 +84,7 @@ const ConfigVariables = {
   stairLayoutEnabled: "stairLayoutEnabled",
   binaryTreeLayoutEnabled: "binaryTreeLayoutEnabled",
   cascadeLayoutEnabled: "cascadeLayoutEnabled",
+  dwindleLayoutEnabled: "dwindleLayoutEnabled",
   /* Layout orders */
   tileLayoutOrder: "tileLayoutOrder",
   monocleLayoutOrder: "monocleLayoutOrder",
@@ -97,6 +98,7 @@ const ConfigVariables = {
   stairLayoutOrder: "stairLayoutOrder",
   binaryTreeLayoutOrder: "binaryTreeLayoutOrder",
   cascadeLayoutOrder: "cascadeLayoutOrder",
+  dwindleLayoutOrder: "dwindleLayoutOrder",
   /* Layout capacities */
   tileLayoutCapacity: "tileLayoutCapacity",
   threeColumnLayoutCapacity: "threeColumnLayoutCapacity",
@@ -107,6 +109,7 @@ const ConfigVariables = {
   stairLayoutCapacity: "stairLayoutCapacity",
   binaryTreeLayoutCapacity: "binaryTreeLayoutCapacity",
   cascadeLayoutCapacity: "cascadeLayoutCapacity",
+  dwindleLayoutCapacity: "dwindleLayoutCapacity",
   /* Surfaces */
   srfExceededToScreen: "srfExceededToScreen",
   srfToScreenOrderLeft: "srfToScreenOrderLeft",
