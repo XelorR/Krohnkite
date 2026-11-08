@@ -307,9 +307,10 @@ class DwindleTree {
     if (!secondPresent)
       return this.layoutNode(node.first, area, gap, metrics, result);
 
-    /* An unlocked split follows the longer edge of its current area. */
+    /* An unlocked split follows the longer edge of its current area.
+     * Hyprland's default multiplier is 1.0, so a square area is vertical. */
     if (!node.locked)
-      node.dir = area.width >= area.height ? "h" : "v";
+      node.dir = area.width > area.height ? "h" : "v";
 
     const splitAxis = node.horizontal ? "x" : "y";
     const minFirst = this.minLength(node.first, splitAxis, gap, metrics);
@@ -348,9 +349,10 @@ class DwindleTree {
       return this.adjustNode(child, area, gap, metrics, basisId, delta);
     }
 
-    /* An unlocked split follows the longer edge of its current area. */
+    /* An unlocked split follows the longer edge of its current area.
+     * Hyprland's default multiplier is 1.0, so a square area is vertical. */
     if (!node.locked)
-      node.dir = area.width >= area.height ? "h" : "v";
+      node.dir = area.width > area.height ? "h" : "v";
 
     const splitAxis = node.horizontal ? "x" : "y";
     const minFirst = this.minLength(node.first, splitAxis, gap, metrics);

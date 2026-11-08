@@ -276,6 +276,12 @@ test('Dwindle inserts into the focused leaf and continues from the new focus', (
   const untouched = new Map(
     ['b', 'c', 'd'].map((id) => [id, geometryOf(scene.windows.get(id))]),
   );
+  const untouchedParentRatios = new Map(
+    ['b', 'c', 'd'].map((id) => {
+      const leaf = layout.tree.find(id);
+      return [id, leaf.parent ? leaf.parent.ratio : null];
+    }),
+  );
 
   /* The focused root leaf is split; the cursor selects the new child's side. */
   a.focusTime = 100;
@@ -292,16 +298,32 @@ test('Dwindle inserts into the focused leaf and continues from the new focus', (
   assert.equal(aLeaf.parent.first, eLeaf);
   assert.equal(aLeaf.parent.second, aLeaf);
   assert.equal(shape(aLeaf.parent.first), 'e');
+  assert.equal(aLeaf.parent.dir, aHorizontal ? 'h' : 'v');
+  assert.equal(aLeaf.parent.ratio, 0.5);
+  assert.equal(aLeaf.parent.locked, false);
   assert.equal(layout.tree.root, fourWindowRoot);
   assert.equal(layout.tree.root.ratio, fourWindowRootRatio);
-  for (const id of ['b', 'c', 'd'])
+  for (const id of ['b', 'c', 'd']) {
     assert.deepEqual(geometryOf(scene.windows.get(id)), untouched.get(id));
+    const leaf = layout.tree.find(id);
+    assert.equal(
+      leaf.parent ? leaf.parent.ratio : null,
+      untouchedParentRatios.get(id),
+      `splitting a must keep the ${id} branch ratio`,
+    );
+  }
 
   /* A deeper focused leaf gets its own split; the pre-existing root shape
    * outside the inserted branch remains intact. */
   const cRect = c.geometry;
   const unaffectedLeaves = new Map(
     ['b', 'd', 'e'].map((id) => [id, layout.tree.find(id)]),
+  );
+  const unaffectedBranches = new Map(
+    ['b', 'd', 'e'].map((id) => {
+      const leaf = layout.tree.find(id);
+      return [id, { parent: leaf.parent, ratio: leaf.parent ? leaf.parent.ratio : null }];
+    }),
   );
   c.focusTime = 2000;
   const cHorizontal = cRect.width >= cRect.height;
@@ -315,9 +337,21 @@ test('Dwindle inserts into the focused leaf and continues from the new focus', (
   assert.equal(cLeaf.parent, fLeaf.parent);
   assert.equal(cLeaf.parent.first, cLeaf);
   assert.equal(cLeaf.parent.second, fLeaf);
+  assert.equal(cLeaf.parent.dir, cHorizontal ? 'h' : 'v');
+  assert.equal(cLeaf.parent.ratio, 0.5);
+  assert.equal(cLeaf.parent.locked, false);
   assert.equal(shape(layout.tree.root)[0], fourWindowShape[0]);
-  for (const id of ['b', 'd', 'e'])
-    assert.equal(layout.tree.find(id), unaffectedLeaves.get(id));
+  assert.equal(layout.tree.root.ratio, fourWindowRootRatio);
+  for (const id of ['b', 'd', 'e']) {
+    const leaf = layout.tree.find(id);
+    assert.equal(leaf, unaffectedLeaves.get(id));
+    assert.equal(leaf.parent, unaffectedBranches.get(id).parent);
+    assert.equal(
+      leaf.parent ? leaf.parent.ratio : null,
+      unaffectedBranches.get(id).ratio,
+      `splitting c must keep the ${id} branch ratio`,
+    );
+  }
 
   /* Focused f is now the insertion target for the following new window. */
   f.focusTime = 4000;
@@ -332,6 +366,49 @@ test('Dwindle inserts into the focused leaf and continues from the new focus', (
   assert.equal(gLeaf.parent, fLeaf.parent);
   assert.equal(gLeaf.parent.first, fLeaf);
   assert.equal(gLeaf.parent.second, gLeaf);
+  assert.equal(gLeaf.parent.dir, fHorizontal ? 'h' : 'v');
+  assert.equal(gLeaf.parent.ratio, 0.5);
+  assert.equal(gLeaf.parent.locked, false);
+});
+
+test('new window splits the focused leaf regardless of tile list order', () => {
+  const scene = buildScene();
+  const a = addWindow(scene, 'a', { focusTime: 4 });
+  const b = addWindow(scene, 'b', { focusTime: 3 });
+  const c = addWindow(scene, 'c', { focusTime: 2 });
+  const d = addWindow(scene, 'd', { focusTime: 1 });
+  const layout = new scene.api.DwindleLayout(null);
+  const applyDwindle = (ids) => layout.apply(
+    scene.ctx,
+    ids.map((id) => scene.windows.get(id)),
+    scene.area,
+    scene.gap,
+  );
+
+  applyDwindle(['a', 'b', 'c', 'd']);
+  const aRect = a.geometry;
+  const cRect = c.geometry;
+  const dRect = d.geometry;
+
+  /* b is deep in the second branch.  Make it the active window and put the
+   * cursor in b's right half so the new window becomes its second child. */
+  b.focusTime = 100;
+  const bRect = b.geometry;
+  scene.ctx.cursorPos = {
+    x: bRect.x + bRect.width * 3 / 4,
+    y: bRect.y + bRect.height / 2,
+  };
+  addWindow(scene, 'e', { focusTime: 200 });
+  applyDwindle(['e', 'd', 'c', 'b', 'a']);
+
+  const bLeaf = layout.tree.find('b');
+  const eLeaf = layout.tree.find('e');
+  assert.equal(eLeaf.parent, bLeaf.parent);
+  assert.equal(bLeaf.parent.first, bLeaf);
+  assert.equal(bLeaf.parent.second, eLeaf);
+  assert.deepEqual(geometryOf(a), [aRect.x, aRect.y, aRect.width, aRect.height]);
+  assert.deepEqual(geometryOf(c), [cRect.x, cRect.y, cRect.width, cRect.height]);
+  assert.deepEqual(geometryOf(d), [dRect.x, dRect.y, dRect.width, dRect.height]);
 });
 
 test('closing a window collapses its slot and grows the sibling', () => {
