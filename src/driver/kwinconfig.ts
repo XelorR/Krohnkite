@@ -674,7 +674,7 @@ class KWinConfig implements IConfig {
     );
 
     this.unfitLess = KWIN.readConfig("unfitLess", true);
-    this.unfitGreater = KWIN.readConfig("unfitGreater", false);
+    this.unfitGreater = KWIN.readConfig("unfitGreater", true);
 
     this.notificationDuration = KWIN.readConfig("notificationDuration", 1000);
 
